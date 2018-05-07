@@ -8,23 +8,8 @@
 # install dependencies
 npm install
 
-# serve with hot reload at localhost:8080
+# serve with hot reload at localip:8098/#/
 npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
 
 Vuex就是提供一个仓库，Store仓库里面放了很多对象。
@@ -35,15 +20,20 @@ actions和mutations对应于methods，用mapActions获取
 【当然用之前必须use一下下： Vue.use(Vuex) 】
 
 Store源码分析:
+
 class Store{
+
      constructor (options = {}) {
+
      1.部分2个‘断言函数’判断条件
+
      assert(Vue, `must call Vue.use(Vuex) before creating a store 
      instance.`)  // 在Store实例化之前一定要确保Vue的存在
      assert(typeof Promise !== 'undefined', `vuex requires a Promise polyfill in this browser.`)
      //确保promise存在
      
      2.结构赋值拿到options里面的state，plugins和strict
+
      const {
         state = {},   //rootState
         plugins = [], // 插件
@@ -51,6 +41,7 @@ class Store{
             } = options
             
      3.Store internal state创建store内部属性
+
      this._options = options //存储参数
      this._committing = false //标识提交状态，保证修改state只能在mutation里面，不能在外部随意修改
      this._actions = Object.create(null)  //存储用户定义的actions
@@ -61,6 +52,7 @@ class Store{
      this._watcherVM = new Vue() //借用Vue实例的方法，$watch来观测变化
      
      4.将dispatch和commit的this指向当前store实例
+
      const store = this
      const { dispatch, commit } = this
      this.dispatch = function boundDispatch (type, payload) {
@@ -68,3 +60,54 @@ class Store{
      this.commit = function boundCommit (type, payload, options) {
      return commit.call(store, type, payload, options)}
 }
+
+KEY CODE:
+
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+const getters = {
+    count: (state) => {
+        return state.count
+    },
+    type: (state) => {
+        return state.count % 2 ? "奇数" : "偶数"
+    }
+}
+
+const state = {
+    count: 10,
+    type: ''
+}
+
+const actions = {
+    add: ({ commit }) => {
+        commit('add')
+    },
+    minus: ({ commit }) => {
+        commit('minus')
+    },
+    odd: ({ commit }) => {
+        if (state.count % 2 == 0) {
+            commit('add')
+        }
+    }
+}
+
+const mutations = {
+    add(state) {
+        state.count++
+    },
+    minus(state) {
+        state.count--
+    }
+}
+
+export default new Vuex.Store({
+    state,
+    mutations,
+    actions,
+    getters
+})
